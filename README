@@ -1,0 +1,79 @@
+Boroghina Gabriel
+
+Imaginile sunt memorate cu ajutorul unei structuri Bitmap, care contine
+dimensiunile imaginii (height si width) si matricea de pixeli (alocata
+dinamic). Functiile care folosesc o imagine primesc un pointer catre 
+structura Bitmap respectiva pentru a nu incarca in stiva intreaga structura.
+
+Structura Pixel contine cele 3 componente ale unui pixel: r,g,b.
+
+Structura pixelPos este folosita pentru a memora un pixel in formatul
+linie, coloana, r, g, b.
+
+Structura Metadata memoreaza cele 2 headere ale imaginii si numele
+fisierului din care se citeste sau in care se scrie (depinzand de utilizare).
+
+* TASK 1:
+Se citeste imaginea (functia initialize) si se apeleaza functia blackWhite, 
+care construieste imaginea alb-negru inlocuind componentele fiecarui pixel cu
+media aritmetica a acestora ( (r+g+b)/3 ). Imaginea alb-negru este retinuta 
+in structura Bitmap black_white.
+
+* TASK 2:
+Se aplica cele 3 filtre pe imaginea alb-negru. Filtrele sunt retinute sub
+forma de vectori F[0], F[1] si F[2], cu liniile in ordine inversa (deoarece 
+si imaginea este retinuta cu liniile inversate). Daca un pixel are vecini in
+afara imaginii, acestia nu sunt luati in considerare (deoarece au valoarea 
+(0,0,0)).
+
+* TASK 3:
+Functia compressImage aplica fill pe imaginea initiala, pornind de jos in 
+sus (imaginea este retinuta invers) si de la stanga la dreapta, 
+construindu-se astfel zonele de pixeli de culori asemanatoare.
+
+Functia checkSmilarity verifica daca 2 pixeli sunt asemanatori pe baza
+valorii threshold.
+
+Functia fill implementeaza un algoritm de fill iterativ pentru a evita 
+problemele de stack overflow. Este folosita o stiva alocata dinamic de tipul
+pair (structura cu 2 campuri short) pentru a retine pozitiile prin care 
+trecem. Cand dintr-o pozitie nu ne mai putem deplasa, se scoate din stiva 
+elementul din varf si se revine la elementul anterior din stiva. Fiecare pixel
+prin care se trece primeste culoarea pixelului de pornire. Functia fill se 
+aplica pentru fiecare pixel nevizitat (in momentul curent) din matrice.
+
+Functia isBorder determina daca un pixel se afla pe frontiera unei zone. Avem
+doua cazuri: pixelul se afla pe frontiera imaginii (prima/ultima linie, 
+prima/ultima coloana) sau pixelul are cel putin un vecin dintr-o zona diferita
+(deci face parte din frontiera zonei curente).
+
+* TASK 4:
+Functia decompressImage citeste imaginea comprimata si plaseaza in imaginea
+compressed pixelii de pe frontierele zonelor. Pixelii ramasi neintrodusi
+fac parte din interiorul zonelor. Cum fiecare zona este delimitata de
+frontiere pe toate liniile pe care se intinde, putem umple pixelii de pe o
+linie dintre 2 frontiere consecutive ale aceleiasi zone cu culoarea de pe 
+frontiere. Acest lucru se poate realiza atribuind fiecarui pixel neadaugat 
+valoarea pixelului din stanga sa: pixelii deja adaugati nu vor fi modificati,
+iar cei neadaugati se vor colora in ordine pana la urmatoarea frontiera a
+zonei respective. (primul ia culoarea frontierei, al doilea culoarea primului,
+etc.). 
+Astfel se realizeaza decomprimarea imaginii in complexitate O(height*width).
+
+Matricea sw retine pixelii care au fost introdusi initial in matricea de 
+pixeli, adica frontierele zonelor.
+
+Alte functii utilizate:
+
+- newBitmap(short height, short width): creeaza o imagine de tip Bitmap de 
+dimensiuni height si width si aloca memorie pentru matricea de pixeli.
+
+- appendName(char *begin, char *end): construieste numele fisierului de iesire
+eliminand extensia .bmp din stringul begin si lipind la sfarsit stringul end.
+
+- free_mem(Bitmap img): elibereaza memoria alocata dinamic pentru matricea de
+pixeli a imaginii img.
+
+- printImage(Bitmap *bmp, Metadata meta): scrie imaginea bmp in fisierul
+meta.imageName. Sunt scrise cele 2 headere, offsetul si apoi matricea de 
+pixeli. (cu padding dupa fiecare linie daca este nevoie).
